@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRegisterMutation } from '../services/authApi';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useDispatch } from 'react-redux';
+import { setCredentials } from '../store/auth/authSlice';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 
@@ -12,6 +13,7 @@ const RegisterScreen = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
+  const dispatch = useDispatch();
   const router = useRouter();
   const [register, { isLoading }] = useRegisterMutation();
 
@@ -22,17 +24,11 @@ const RegisterScreen = () => {
     }
     try {
       const res = await register({ username, email, phoneNumber, password }).unwrap();
-      console.log('Backend response:', res);
-
+      
       // Save token, username, and account number
-      await AsyncStorage.multiSet([
-        ['token', res.access_token],
-        ['username', res.username],
-        ['accountNumber', res.wallet.accountNumber],
-      ]);
-
+      dispatch(setCredentials({ token: res.access_token, user: res }));
       alert('Registration successful! Please login.');
-      router.replace('/Login');
+      router.replace('/dashboardscreen');
     } catch (err: any) {
       if (err?.status === 409) {
         alert('A user with this email or phone already exists. Please login.');

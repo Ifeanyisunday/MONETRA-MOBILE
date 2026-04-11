@@ -6,11 +6,11 @@ export const walletApi = createApi({
   baseQuery,
   tagTypes: ['Wallet'],
   endpoints: (builder) => ({
-    getWallet: builder.query({
-      query: () => '/wallet',
+    getWallet: builder.query<any, void>({
+      query: () => '/wallet/me',
       providesTags: ['Wallet'],
     }),
   }),
 });
 
-export const { useGetWalletQuery } = walletApi;
+export const { useGetWalletQuery, useLazyGetWalletQuery } = walletApi;

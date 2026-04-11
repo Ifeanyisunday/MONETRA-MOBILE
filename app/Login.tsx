@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { useLoginMutation } from '../services/authApi';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { jwtDecode } from 'jwt-decode';
+import { useDispatch } from 'react-redux';
+import { setCredentials } from '../store/auth/authSlice'; // ✅ import slice action
+import { useLazyGetWalletQuery } from '../services/walletApi'; // ✅ import wallet query hook
 
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
@@ -12,21 +14,34 @@ const LoginScreen = () => {
 
   const router = useRouter();
   const [login, { isLoading }] = useLoginMutation();
+  const [triggerGetWallet] = useLazyGetWalletQuery();
+  const dispatch = useDispatch();
 
   const handleLogin = async () => {
     try {
       const res = await login({ email, password }).unwrap();
+      const token = res.access_token;
       console.log('Backend response:', res);
 
+      // Decode JWT to extract username/email
       const decoded: any = jwtDecode(res.access_token);
       const username = decoded.username || decoded.email || '';
 
-      await AsyncStorage.multiSet([
-        ['token', res.access_token],
-        ['username', username],
-      ]);
+      // ✅ Dispatch to Redux store
+      dispatch(setCredentials({ token, user: { ...decoded, username } }));
+    
+    // ✅ Trigger wallet fetch AFTER login
+    const walletRes = await triggerGetWallet().unwrap();
+    console.log('Wallet response:', walletRes);
+      
+      // Merge wallet into user object
+    dispatch(setCredentials({
+      token,
+      user: { ...decoded, username, wallet: walletRes },
+    }));
 
       alert('Login successful!');
+
       router.replace('/dashboardscreen');
     } catch (err: any) {
       console.log('Login error:', err);

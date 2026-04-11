@@ -1,65 +1,47 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, FlatList } from "react-native";
 import { useRouter } from "expo-router";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
-// If you have RTK Query hooks for transactions, import them here
-// import { useGetTransactionsQuery } from "../services/transactionApi";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "../store/store"; // adjust path
+import { logout } from "../store/auth/authSlice";
+import { useGetWalletQuery } from "../services/walletApi";
 
 export default function DashboardScreen() {
   const router = useRouter();
-  const [userName, setUserName] = useState("");
-  const [accountNumber, setAccountNumber] = useState("");
-  const [balance, setBalance] = useState("0");
-  const [transactions, setTransactions] = useState<any[]>([]);
+  const dispatch = useDispatch();
 
-  useEffect(() => {
-    const loadUserData = async () => {
-      const token = await AsyncStorage.getItem("token");
-      if (!token) {
-        router.replace("/Login");
-        return;
-      }
-      const storedName = await AsyncStorage.getItem("username");
-      const storedAccount = await AsyncStorage.getItem("accountNumber");
-      const storedBalance = await AsyncStorage.getItem("balance");
-      if (storedName) setUserName(storedName);
-      if (storedAccount) setAccountNumber(storedAccount);
-      if (storedBalance) setBalance(storedBalance);
+  // ✅ Read auth state directly from Redux
+  const auth = useSelector((state: RootState) => state.auth);
+  console.log("Auth state in Dashboard:", auth.user); // Debug log to verify auth state
 
-      // Example: fetch transactions from backend
-      // If you have RTK Query:
-      // const { data } = useGetTransactionsQuery();
-      // setTransactions(data || []);
+  const { data: wallet, isLoading } = useGetWalletQuery();
 
-      // For now, simulate with dummy data
-      setTransactions([
-        { id: 1, description: "Deposit", type: "credit", amount: 5000 },
-        { id: 2, description: "Transfer to John", type: "debit", amount: 2000 },
-      ]);
-    };
-    loadUserData();
-  }, []);
-
-  const handleLogout = async () => {
-    await AsyncStorage.multiRemove(["token", "username", "accountNumber", "balance"]);
+  const handleLogout = () => {
+    dispatch(logout());
     router.replace("/Login");
   };
+
+  // Dummy transactions for now — replace with RTK Query later
+  const transactions = [
+    { id: 1, description: "Deposit", type: "credit", amount: 5000 },
+    { id: 2, description: "Transfer to John", type: "debit", amount: 2000 },
+  ];
 
   return (
     <LinearGradient colors={["#0f2027", "#203a43", "#2c5364"]} style={styles.container}>
       {/* Header */}
       <View style={styles.headerBox}>
-        <Text style={styles.headerTitle}>Welcome, {userName} 👋</Text>
+        <Text style={styles.headerTitle}>Welcome, {auth.user?.username} 👋</Text>
         <Text style={styles.subHeader}>Your financial snapshot</Text>
       </View>
 
       {/* Wallet Info */}
       <View style={styles.summaryCard}>
         <Text style={styles.summaryTitle}>Account Number</Text>
-        <Text style={styles.summaryValue}>{accountNumber || "N/A"}</Text>
+        <Text style={styles.summaryValue}>{wallet?.accountNumber || "N/A"}</Text>
         <Text style={styles.summaryTitle}>Balance</Text>
-        <Text style={styles.summaryValue}>₦{balance}</Text>
+        <Text style={styles.summaryValue}>₦{wallet?.balance ?? 0}</Text>
       </View>
 
       {/* Transactions */}
@@ -86,13 +68,13 @@ export default function DashboardScreen() {
       <View style={styles.actions}>
         <TouchableOpacity
           style={[styles.actionButton, { backgroundColor: "#00b894" }]}
-          onPress={() => router.push("/depositscreen")}
+          onPress={() => router.push("/deposit")}
         >
           <Text style={styles.actionText}>Deposit</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.actionButton, { backgroundColor: "#0984e3" }]}
-          onPress={() => router.push("/transferscreen")}
+          onPress={() => router.push("/transfer")}
         >
           <Text style={styles.actionText}>Transfer</Text>
         </TouchableOpacity>
