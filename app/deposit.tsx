@@ -2,19 +2,16 @@ import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
-import { useDepositMutation } from "@/services/depositApi";
+import { useDepositMutation } from "../services/walletApi";
 
 export default function DepositScreen() {
   const router = useRouter();
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState<number>(0);
   const [deposit, { isLoading }] = useDepositMutation();
 
   const handleDeposit = async () => {
     try {
-      const res = await deposit({ amount }).unwrap();
-
-      console.log("Deposit response:", res);
-
+      await deposit({ amount }).unwrap();
       alert(`Deposited ₦${amount} successfully!`);
       router.replace("/dashboardscreen");
     } catch (err) {
@@ -27,11 +24,15 @@ export default function DepositScreen() {
     <LinearGradient colors={["#0f2027", "#203a43", "#2c5364"]} style={styles.container}>
       <Text style={styles.title}>Deposit Funds</Text>
       <TextInput
-        style={styles.input}
-        placeholder="Enter amount"
-        keyboardType="numeric"
-        value={amount}
-        onChangeText={setAmount}
+          style={styles.input}
+          placeholder="Amount"
+          keyboardType="numeric"
+          value={amount.toString()} // convert number → string for display
+          onChangeText={(text) => {
+            // convert string → number before saving
+          const numericValue = Number(text);
+          setAmount(isNaN(numericValue) ? 0 : numericValue);
+        }}
       />
       <TouchableOpacity style={styles.button} onPress={handleDeposit}>
         <Text style={styles.buttonText}>Deposit</Text>

@@ -7,10 +7,10 @@ import {
   StyleSheet,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { useGetTransactionsQuery } from "../services/transactionApi";
+import { useGetTransactionsQuery } from "../services/walletApi";
 
 export default function TransactionsScreen() {
-  const { data, isLoading, error } = useGetTransactionsQuery(undefined);
+  const { data, isLoading, error } = useGetTransactionsQuery();
 
   if (isLoading)
     return (
@@ -41,10 +41,10 @@ export default function TransactionsScreen() {
             <Text
               style={[
                 styles.txAmount,
-                item.type === "credit" ? styles.credit : styles.debit,
+                item.type === "deposit" ? styles.credit : styles.debit,
               ]}
             >
-              {item.type === "credit" ? "+" : "-"}₦{item.amount}
+              {item.type === "deposit" ? "+" : "-"}₦{item.amount}
             </Text>
           </View>
         )}

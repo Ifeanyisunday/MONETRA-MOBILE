@@ -2,7 +2,7 @@ import { Text, View, StyleSheet, Image, TouchableOpacity } from "react-native";
 import { Link } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 
-export default function Index() {
+export default function Homepage() {
   return (
     <LinearGradient
       colors={["#0f2027", "#203a43", "#2c5364"]}

@@ -28,7 +28,7 @@ const RegisterScreen = () => {
       // Save token, username, and account number
       dispatch(setCredentials({ token: res.access_token, user: res }));
       alert('Registration successful! Please login.');
-      router.replace('/dashboardscreen');
+      router.replace('/Login');
     } catch (err: any) {
       if (err?.status === 409) {
         alert('A user with this email or phone already exists. Please login.');

@@ -5,28 +5,20 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../store/store"; // adjust path
 import { logout } from "../store/auth/authSlice";
-import { useGetWalletQuery } from "../services/walletApi";
+import { useGetWalletQuery, useGetTransactionsQuery } from "../services/walletApi";
 
 export default function DashboardScreen() {
   const router = useRouter();
   const dispatch = useDispatch();
-
-  // ✅ Read auth state directly from Redux
   const auth = useSelector((state: RootState) => state.auth);
-  console.log("Auth state in Dashboard:", auth.user); // Debug log to verify auth state
 
-  const { data: wallet, isLoading } = useGetWalletQuery();
+  const { data: wallet } = useGetWalletQuery();
+  const { data: transactions } = useGetTransactionsQuery();
 
   const handleLogout = () => {
     dispatch(logout());
     router.replace("/Login");
   };
-
-  // Dummy transactions for now — replace with RTK Query later
-  const transactions = [
-    { id: 1, description: "Deposit", type: "credit", amount: 5000 },
-    { id: 2, description: "Transfer to John", type: "debit", amount: 2000 },
-  ];
 
   return (
     <LinearGradient colors={["#0f2027", "#203a43", "#2c5364"]} style={styles.container}>
@@ -47,22 +39,36 @@ export default function DashboardScreen() {
       {/* Transactions */}
       <Text style={styles.sectionTitle}>Recent Transactions</Text>
       <FlatList
-        data={transactions}
+        data={transactions?.slice(0, 5) || []}
         keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.txRow}>
-            <Text style={styles.txDesc}>{item.description}</Text>
-            <Text
-              style={[
-                styles.txAmount,
-                item.type === "credit" ? styles.credit : styles.debit,
-              ]}
-            >
-              {item.type === "credit" ? "+" : "-"}₦{item.amount}
-            </Text>
-          </View>
-        )}
+        renderItem={({ item }) => {
+          const formattedDate = new Date(item.date).toLocaleString();
+          return (
+            <View style={styles.txRow}>
+              <View>
+                <Text style={styles.txDesc}>{item.type}</Text>
+                <Text style={styles.txDate}>{formattedDate}</Text>
+              </View>
+              <Text
+                style={[
+                  styles.txAmount,
+                  item.type === "deposit" ? styles.credit : styles.debit,
+                ]}
+              >
+                {item.type === "deposit" ? "+" : "-"}₦{item.amount}
+              </Text>
+            </View>
+          );
+        }}
       />
+
+      {/* View All Transactions button */}
+      <TouchableOpacity
+        style={styles.viewAllButton}
+        onPress={() => router.push("/transactionscreen")}
+      >
+        <Text style={styles.viewAllText}>View All Transactions</Text>
+      </TouchableOpacity>
 
       {/* Quick Actions */}
       <View style={styles.actions}>
@@ -72,12 +78,35 @@ export default function DashboardScreen() {
         >
           <Text style={styles.actionText}>Deposit</Text>
         </TouchableOpacity>
+
         <TouchableOpacity
           style={[styles.actionButton, { backgroundColor: "#0984e3" }]}
           onPress={() => router.push("/transfer")}
         >
           <Text style={styles.actionText}>Transfer</Text>
         </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.actionButton, { backgroundColor: "#6c5ce7" }]}
+          onPress={() => router.push("/airtime")}
+        >
+          <Text style={styles.actionText}>Airtime</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.actionButton, { backgroundColor: "#fdcb6e" }]}
+          onPress={() => router.push("/nepabill")}
+        >
+          <Text style={styles.actionText}>NEPA Bill</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.actionButton, { backgroundColor: "#e17055" }]}
+          onPress={() => router.push("/tvsubscription")}
+        >
+          <Text style={styles.actionText}>TV Subscription</Text>
+        </TouchableOpacity>
+
         <TouchableOpacity
           style={[styles.actionButton, { backgroundColor: "#d63031" }]}
           onPress={handleLogout}
@@ -112,14 +141,30 @@ const styles = StyleSheet.create({
     borderBottomColor: "rgba(255,255,255,0.2)",
   },
   txDesc: { fontSize: 16, color: "#fff" },
+  txDate: { fontSize: 12, color: "#b2bec3" },
   txAmount: { fontSize: 16, fontWeight: "bold" },
   credit: { color: "#2ecc71" },
   debit: { color: "#e74c3c" },
-  actions: { flexDirection: "row", justifyContent: "space-around", marginTop: 35 },
+  viewAllButton: {
+    marginTop: 15,
+    paddingVertical: 12,
+    borderRadius: 8,
+    backgroundColor: "#636e72",
+    alignItems: "center",
+  },
+  viewAllText: { color: "#fff", fontSize: 16, fontWeight: "600" },
+  actions: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-around",
+    marginTop: 35,
+  },
   actionButton: {
+    width: "45%",
+    marginVertical: 8,
     paddingVertical: 14,
-    paddingHorizontal: 28,
-    borderRadius: 30,
+    borderRadius: 12,
+    alignItems: "center",
     shadowColor: "#000",
     shadowOpacity: 0.25,
     shadowRadius: 6,

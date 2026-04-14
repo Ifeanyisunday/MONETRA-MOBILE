@@ -2,20 +2,25 @@ import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
-// import { useTransferMutation } from "../services/transferApi";
+import { useTransferMutation } from "../services/walletApi";
 
 export default function TransferScreen() {
   const router = useRouter();
-  const [recipient, setRecipient] = useState("");
-  const [amount, setAmount] = useState("");
-  // const [transfer, { isLoading }] = useTransferMutation();
+  const [recipientAccountNumber, setRecipientAccountNumber] = useState(""); // ✅ renamed
+  const [amount, setAmount] = useState<number>(0);
+  const [transfer, { isLoading }] = useTransferMutation();
 
   const handleTransfer = async () => {
     try {
-      // await transfer({ recipient, amount: Number(amount) }).unwrap();
-      alert(`Transferred ₦${amount} to ${recipient} successfully!`);
+      await transfer({
+        recipientAccountNumber, // ✅ matches DTO
+        amount,
+      }).unwrap();
+
+      alert(`Transferred ₦${amount} to ${recipientAccountNumber} successfully!`);
       router.replace("/dashboardscreen");
     } catch (err) {
+      console.log("Transfer error:", err);
       alert("Transfer failed. Try again.");
     }
   };
@@ -23,23 +28,30 @@ export default function TransferScreen() {
   return (
     <LinearGradient colors={["#0f2027", "#203a43", "#2c5364"]} style={styles.container}>
       <Text style={styles.title}>Transfer Funds</Text>
+
       <TextInput
         style={styles.input}
         placeholder="Recipient Account Number"
         keyboardType="numeric"
-        value={recipient}
-        onChangeText={setRecipient}
+        value={recipientAccountNumber}
+        onChangeText={setRecipientAccountNumber}
       />
+
       <TextInput
         style={styles.input}
         placeholder="Enter amount"
         keyboardType="numeric"
-        value={amount}
-        onChangeText={setAmount}
+        value={amount.toString()}
+        onChangeText={(text) => {
+          const numericValue = Number(text);
+          setAmount(isNaN(numericValue) ? 0 : numericValue);
+        }}
       />
-      <TouchableOpacity style={styles.button} onPress={handleTransfer}>
-        <Text style={styles.buttonText}>Transfer</Text>
+
+      <TouchableOpacity style={styles.button} onPress={handleTransfer} disabled={isLoading}>
+        <Text style={styles.buttonText}>{isLoading ? "Processing..." : "Transfer"}</Text>
       </TouchableOpacity>
+
       <TouchableOpacity onPress={() => router.back()}>
         <Text style={styles.link}>Back to Dashboard</Text>
       </TouchableOpacity>
