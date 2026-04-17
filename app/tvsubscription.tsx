@@ -38,6 +38,10 @@ export default function TvSubscriptionScreen() {
       <TouchableOpacity style={styles.button} onPress={handleSubscription}>
         <Text style={styles.buttonText}>Subscribe</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity onPress={() => router.back()}>
+        <Text style={styles.link}>Back to Dashboard</Text>
+      </TouchableOpacity>
     </LinearGradient>
   );
 }
@@ -48,4 +52,5 @@ const styles = StyleSheet.create({
   input: { backgroundColor: "rgba(255,255,255,0.1)", color: "#fff", padding: 12, borderRadius: 8, marginBottom: 15 },
   button: { backgroundColor: "#6c5ce7", padding: 15, borderRadius: 8, alignItems: "center" },
   buttonText: { color: "#fff", fontSize: 16, fontWeight: "600" },
+  link: { color: "#fafdff", marginTop: 20, textAlign: "center" },
 });

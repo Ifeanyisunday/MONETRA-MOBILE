@@ -7,6 +7,8 @@ import { jwtDecode } from 'jwt-decode';
 import { useDispatch } from 'react-redux';
 import { setCredentials } from '../store/auth/authSlice'; // ✅ import slice action
 import { useLazyGetWalletQuery } from '../services/walletApi'; // ✅ import wallet query hook
+import { connectSocket } from '@/services/socket';
+import Toast from 'react-native-toast-message';
 
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
@@ -21,7 +23,6 @@ const LoginScreen = () => {
     try {
       const res = await login({ email, password }).unwrap();
       const token = res.access_token;
-      console.log('Backend response:', res);
 
       // Decode JWT to extract username/email
       const decoded: any = jwtDecode(res.access_token);
@@ -29,23 +30,34 @@ const LoginScreen = () => {
 
       // ✅ Dispatch to Redux store
       dispatch(setCredentials({ token, user: { ...decoded, username } }));
-    
-    // ✅ Trigger wallet fetch AFTER login
-    const walletRes = await triggerGetWallet().unwrap();
-    console.log('Wallet response:', walletRes);
-      
+
+      // ✅ Trigger wallet fetch AFTER login
+      const walletRes = await triggerGetWallet().unwrap();
+
       // Merge wallet into user object
-    dispatch(setCredentials({
-      token,
-      user: { ...decoded, username, wallet: walletRes },
-    }));
+      dispatch(setCredentials({
+        token,
+        user: { ...decoded, username, wallet: walletRes },
+      }));
+
+      // ✅ Connect socket after login
+      const socket = await connectSocket();
+      socket.on(`user-${decoded.id}`, (data: { message: string }) => {
+        Toast.show({
+          type: "success",
+          text1: "Notification",
+          text2: data.message,
+          position: "top",
+          visibilityTime: 4000,
+        });
+      });
 
       alert('Login successful!');
-
       router.replace('/dashboardscreen');
     } catch (err: any) {
-      console.log('Login error:', err);
-      alert('Login failed. Please check your credentials.');
+      const message = err?.data?.message?.message;
+      alert(message);
+      router.push("/registerpage");
     }
   };
 
@@ -57,7 +69,7 @@ const LoginScreen = () => {
       <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={isLoading}>
         <Text style={styles.buttonText}>{isLoading ? 'Logging in...' : 'Login'}</Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => router.push('/Register')}>
+      <TouchableOpacity onPress={() => router.push('/registerpage')}>
         <Text style={styles.link}>Don’t have an account? Sign up</Text>
       </TouchableOpacity>
     </LinearGradient>

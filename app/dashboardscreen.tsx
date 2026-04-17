@@ -7,6 +7,7 @@ import { RootState } from "../store/store"; // adjust path
 import { logout } from "../store/auth/authSlice";
 import { useGetWalletQuery, useGetTransactionsQuery } from "../services/walletApi";
 
+
 export default function DashboardScreen() {
   const router = useRouter();
   const dispatch = useDispatch();
@@ -17,7 +18,7 @@ export default function DashboardScreen() {
 
   const handleLogout = () => {
     dispatch(logout());
-    router.replace("/Login");
+    router.replace("/loginpage");
   };
 
   return (
@@ -69,6 +70,29 @@ export default function DashboardScreen() {
       >
         <Text style={styles.viewAllText}>View All Transactions</Text>
       </TouchableOpacity>
+
+      {/* Savings Vaults */}
+      {/* <Text style={styles.sectionTitle}>Savings Vaults</Text>
+      <FlatList
+        data={vaults || []}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            onPress={() =>
+              router.push({
+                pathname: "/vaults/vaultdetailsscreen",
+                params: { vault: JSON.stringify(item) },
+              })
+            }
+          >
+            <VaultCard
+              name={item.name}
+              balance={item.balance}
+              targetAmount={item.targetAmount}
+            />
+          </TouchableOpacity>
+        )}
+      /> */}
 
       {/* Quick Actions */}
       <View style={styles.actions}>

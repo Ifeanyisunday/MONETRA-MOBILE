@@ -13,10 +13,12 @@ export default function DepositScreen() {
     try {
       await deposit({ amount }).unwrap();
       alert(`Deposited ₦${amount} successfully!`);
+
+      console.log(deposit)
       router.replace("/dashboardscreen");
-    } catch (err) {
-      console.log("Deposit error:", err);
-      alert("Deposit failed. Try again.");
+    } catch (err: any) {
+      const message = err?.data?.message?.message
+      alert(message);
     }
   };
 

@@ -39,6 +39,10 @@ export default function NepaBillScreen() {
       <TouchableOpacity style={styles.button} onPress={handlePayment}>
         <Text style={styles.buttonText}>Pay Bill</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity onPress={() => router.back()}>
+        <Text style={styles.link}>Back to Dashboard</Text>
+      </TouchableOpacity>
     </LinearGradient>
   );
 }
@@ -49,4 +53,5 @@ const styles = StyleSheet.create({
   input: { backgroundColor: "rgba(255,255,255,0.8)", color: "#2d3436", padding: 12, borderRadius: 8, marginBottom: 15 },
   button: { backgroundColor: "#0984e3", padding: 15, borderRadius: 8, alignItems: "center" },
   buttonText: { color: "#fff", fontSize: 16, fontWeight: "600" },
+  link: { color: "#feffff", marginTop: 20, textAlign: "center" },
 });

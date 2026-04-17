@@ -28,7 +28,7 @@ const RegisterScreen = () => {
       // Save token, username, and account number
       dispatch(setCredentials({ token: res.access_token, user: res }));
       alert('Registration successful! Please login.');
-      router.replace('/Login');
+      router.replace('/loginpage');
     } catch (err: any) {
       if (err?.status === 409) {
         alert('A user with this email or phone already exists. Please login.');
@@ -50,7 +50,7 @@ const RegisterScreen = () => {
       <TouchableOpacity style={styles.button} onPress={handleRegister} disabled={isLoading}>
         <Text style={styles.buttonText}>{isLoading ? 'Signing up...' : 'Sign Up'}</Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => router.push('/Login')}>
+      <TouchableOpacity onPress={() => router.push('/loginpage')}>
         <Text style={styles.link}>Already have an account? Login</Text>
       </TouchableOpacity>
     </LinearGradient>

@@ -2,7 +2,7 @@ import { Text, View, StyleSheet, Image, TouchableOpacity } from "react-native";
 import { Link } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 
-export default function Homepage() {
+export default function MonetraHomepage() {
   return (
     <LinearGradient
       colors={["#0f2027", "#203a43", "#2c5364"]}
@@ -20,13 +20,13 @@ export default function Homepage() {
 
       {/* Action buttons */}
       <View style={styles.buttonGroup}>
-        <Link href="/Login" asChild>
+        <Link href="/loginpage" asChild>
           <TouchableOpacity style={styles.primaryButton}>
             <Text style={styles.buttonText}>Login</Text>
           </TouchableOpacity>
         </Link>
 
-        <Link href="/Register" asChild>
+        <Link href="/registerpage" asChild>
           <TouchableOpacity style={styles.secondaryButton}>
             <Text style={styles.buttonText}>Sign Up</Text>
           </TouchableOpacity>

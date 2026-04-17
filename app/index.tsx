@@ -1,8 +1,5 @@
-import { StyleSheet, Text, View } from "react-native";
-import Homepage from "./Monetra";
+import MonetraHomepage from "./homepage";
 
-export default function Page() {
-  return  <Homepage />;
+export default function Index() {
+  return <MonetraHomepage/>
 }
-
-
